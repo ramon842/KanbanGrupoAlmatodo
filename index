@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo Almatodo - Kanban</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sortable/1.15.2/Sortable.min.js"></script>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        .kanban-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+        .kanban-column {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            width: 300px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .kanban-column h2 {
+            text-align: center;
+            color: #1f3c88;
+        }
+        .kanban-task {
+            background: #d0e2ff;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: grab;
+        }
+        .add-task-btn {
+            width: 100%;
+        }
+        .logo-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .logo-container img {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="LOGO_DE_GRUPO_ALMATODO.png" alt="Grupo Almatodo">
+    </div>
+    <div class="kanban-container">
+        <div class="kanban-column" id="todo">
+            <h2>Por Iniciar</h2>
+            <div class="task-list" id="todo-list"></div>
+            <button class="btn btn-primary add-task-btn" onclick="addTask('todo-list')">Agregar Tarea</button>
+        </div>
+        <div class="kanban-column" id="in-progress">
+            <h2>En Proceso</h2>
+            <div class="task-list" id="in-progress-list"></div>
+        </div>
+        <div class="kanban-column" id="done">
+            <h2>Terminado</h2>
+            <div class="task-list" id="done-list"></div>
+        </div>
+    </div>
+    
+    <script>
+        function addTask(columnId) {
+            const taskText = prompt("Ingrese el nombre de la tarea:");
+            if (taskText) {
+                const task = document.createElement("div");
+                task.classList.add("kanban-task");
+                task.innerHTML = `
+                    <span>${taskText}</span>
+                    <button class="btn btn-sm btn-danger float-end" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                document.getElementById(columnId).appendChild(task);
+            }
+        }
+        
+        new Sortable(document.getElementById("todo-list"), { group: "kanban", animation: 150 });
+        new Sortable(document.getElementById("in-progress-list"), { group: "kanban", animation: 150 });
+        new Sortable(document.getElementById("done-list"), { group: "kanban", animation: 150 });
+    </script>
+</body>
+</html>
