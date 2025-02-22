@@ -3,97 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grupo Almatodo - Kanban</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sortablejs/1.15.2/Sortable.min.js"></script>
+    <title>Kanban Board - Gestión de Proyectos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
-        body {
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
-        }
-        .kanban-container {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            padding: 20px;
-        }
-        .kanban-column {
-            background: #fff;
-            border-radius: 10px;
-            padding: 15px;
-            width: 300px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .kanban-column h2 {
-            text-align: center;
-            color: #1f3c88;
-        }
-        .task-list {
-            min-height: 100px;
-            padding: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-        }
-        .kanban-task {
-            background: #d0e2ff;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: grab;
-        }
-        .add-task-btn {
-            width: 100%;
-        }
-        .logo-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .logo-container img {
-            width: 150px;
-        }
+        body { background: linear-gradient(to right, #1e3a8a, #9333ea); color: white; font-family: Arial, sans-serif; }
+        .kanban-board { display: flex; justify-content: space-around; padding: 20px; gap: 15px; }
+        .kanban-column { width: 30%; background: #334155; padding: 15px; border-radius: 8px; min-height: 300px; }
+        .task { background: #475569; padding: 10px; border-radius: 5px; margin: 10px 0; cursor: grab; }
+        .task:hover { background: #64748b; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; padding: 20px; border-radius: 10px; width: 300px; text-align: center; }
+        .modal input, .modal button { margin-top: 10px; width: 100%; padding: 8px; border-radius: 5px; }
+        .modal input { background: #2d3748; color: white; border: none; }
+        .instructions { text-align: center; margin-top: 10px; font-size: 1rem; }
     </style>
 </head>
 <body>
-    <div class="logo-container">
-        <img src="LOGO_DE_GRUPO_ALMATODO.png" alt="Grupo Almatodo">
-    </div>
-    <div class="kanban-container">
-        <div class="kanban-column" id="todo">
-            <h2>Por Iniciar</h2>
-            <div class="task-list" id="todo-list"></div>
-            <button class="btn btn-primary add-task-btn" onclick="addTask('todo-list')">Agregar Tarea</button>
+    <h1 class="text-3xl text-center font-bold mt-4">📌 Tablero Kanban</h1>
+    <p class="instructions">📌 Arrastra y suelta tareas entre columnas. ✏️ Doble clic en una tarea para editarla. 🗑️ Para eliminar una tarea, edítala y deja el campo vacío.</p>
+    <button class="block mx-auto my-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="showModal()">➕ Agregar Tarea</button>
+
+    <div class="kanban-board">
+        <div class="kanban-column" id="pending">
+            <h2 class="text-lg font-bold text-center">🕒 Pendiente</h2>
         </div>
-        <div class="kanban-column" id="in-progress">
-            <h2>En Proceso</h2>
-            <div class="task-list" id="in-progress-list"></div>
+        <div class="kanban-column" id="inProgress">
+            <h2 class="text-lg font-bold text-center">⚙️ En Proceso</h2>
         </div>
-        <div class="kanban-column" id="done">
-            <h2>Terminado</h2>
-            <div class="task-list" id="done-list"></div>
+        <div class="kanban-column" id="completed">
+            <h2 class="text-lg font-bold text-center">✅ Completado</h2>
         </div>
     </div>
-    
+
+    <div id="taskModal" class="modal">
+        <h2>➕ Agregar Tarea</h2>
+        <input type="text" id="taskInput" placeholder="Escribe tu tarea aquí..." class="border p-2 w-full">
+        <button onclick="addTask()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2">Guardar</button>
+        <button onclick="closeModal()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2">Cancelar</button>
+    </div>
+
     <script>
-        function addTask(columnId) {
-            const taskText = prompt("Ingrese el nombre de la tarea:");
-            if (taskText) {
-                const task = document.createElement("div");
-                task.classList.add("kanban-task");
-                task.innerHTML = `
-                    <span>${taskText}</span>
-                    <button class="btn btn-sm btn-danger float-end" onclick="this.parentElement.remove()">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                document.getElementById(columnId).appendChild(task);
+        function showModal() {
+            document.getElementById('taskModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').style.display = 'none';
+        }
+
+        function addTask() {
+            const taskText = document.getElementById('taskInput').value.trim();
+            if (!taskText) return alert("Escribe una tarea");
+
+            const task = document.createElement('div');
+            task.classList.add('task');
+            task.textContent = taskText;
+            task.setAttribute('draggable', true);
+            task.ondblclick = function () { editTask(this); };
+
+            document.getElementById('pending').appendChild(task);
+            saveData();
+            closeModal();
+        }
+
+        function editTask(task) {
+            const newText = prompt("Editar tarea:", task.textContent);
+            if (newText !== null) {
+                task.textContent = newText || task.remove();
+                saveData();
             }
         }
-        
-        document.addEventListener("DOMContentLoaded", function() {
-            new Sortable(document.getElementById("todo-list"), { group: "kanban", animation: 150 });
-            new Sortable(document.getElementById("in-progress-list"), { group: "kanban", animation: 150 });
-            new Sortable(document.getElementById("done-list"), { group: "kanban", animation: 150 });
+
+        function saveData() {
+            const data = {
+                pending: document.getElementById('pending').innerHTML,
+                inProgress: document.getElementById('inProgress').innerHTML,
+                completed: document.getElementById('completed').innerHTML
+            };
+            localStorage.setItem('kanbanData', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem('kanbanData'));
+            if (data) {
+                document.getElementById('pending').innerHTML = data.pending;
+                document.getElementById('inProgress').innerHTML = data.inProgress;
+                document.getElementById('completed').innerHTML = data.completed;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+
+            ['pending', 'inProgress', 'completed'].forEach(id => {
+                new Sortable(document.getElementById(id), {
+                    group: 'kanban',
+                    animation: 150,
+                    onEnd: saveData
+                });
+            });
         });
     </script>
 </body>
